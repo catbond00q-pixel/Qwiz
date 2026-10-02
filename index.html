@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Скільки ваших сил іде на «треба», а скільки на ваше життя?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Manrope:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{
+  --bg:#E2DBCE; --paper:#FFFFFF; --ink:#3A2D29; --muted:#6E625A; --line:#D3C9B8;
+  --need:#4F3D38; --need-soft:#EFE9DD; --life:#AA9876; --life-deep:#7F6B47;
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5}
+#quiz{max-width:580px;margin:0 auto;min-height:100vh;padding:0 18px 48px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0}
+h1{font-size:clamp(28px,7.4vw,40px)}
+h2{font-size:clamp(22px,5.6vw,27px)}
+h3{font-size:19px}
+p{margin:0 0 14px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--life-deep);outline-offset:2px}
+
+/* live bar */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 0 10px}
+.bar-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.bar-label b{color:var(--ink);font-weight:700}
+.bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--line)}
+.bar i{display:block;height:100%;transition:width .5s ease}
+.bar .n{background:var(--need)} .bar .l{background:var(--life)}
+.bar.big{height:22px}
+.prog{font-size:13px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.back{background:none;border:0;color:var(--muted);padding:4px 0;font-size:13px;font-weight:600}
+.back[hidden]{display:none}
+
+.screen{padding-top:18px}
+.card{background:var(--paper);border-radius:18px;padding:22px 20px;box-shadow:0 1px 0 var(--line)}
+
+/* intro */
+.intro{padding-top:44px}
+.intro h1{margin-bottom:18px}
+.intro .lead{color:var(--muted)}
+.gets{list-style:none;padding:0;margin:22px 0 26px}
+.gets li{padding:12px 0 12px 22px;border-top:1px solid var(--line);position:relative}
+.gets li:last-child{border-bottom:1px solid var(--line)}
+.gets li::before{content:"";position:absolute;left:0;top:21px;width:9px;height:9px;border-radius:50%;background:var(--life)}
+.fine{font-size:14px;color:var(--muted)}
+
+/* buttons */
+.btn{display:block;width:100%;background:var(--need);color:#fff;border:0;border-radius:14px;padding:16px 20px;font-weight:700;font-size:17px;transition:background .2s}
+.btn:hover{background:#3A2D29}
+.btn[disabled]{background:#BDB3A3;cursor:not-allowed}
+.btn.amber{background:var(--life-deep)} .btn.amber:hover{background:#665437}
+.link{background:none;border:0;color:var(--need);text-decoration:underline;padding:10px 0;font-weight:600}
+
+/* question */
+.q-title{margin:6px 0 6px}
+.q-hint{font-size:14px;color:var(--muted);margin-bottom:16px}
+.opts{display:grid;gap:10px;margin:16px 0 20px;padding:0;border:0}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--ink);transition:border-color .15s,background .15s}
+.opt:hover{border-color:#BDB3A3}
+.opt .mark{flex:0 0 22px;height:22px;margin-top:1px;border:2px solid #BDB3A3;border-radius:50%;display:grid;place-items:center}
+.multi .opt .mark{border-radius:6px}
+.opt[aria-checked="true"]{border-color:var(--need);background:var(--need-soft)}
+.opt[aria-checked="true"] .mark{background:var(--need);border-color:var(--need)}
+.opt[aria-checked="true"] .mark::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.slider-box{text-align:center;margin:26px 0 28px}
+.slider-val{font-family:var(--serif);font-size:56px;font-weight:600;line-height:1;color:var(--need)}
+.slider-val small{font-size:28px}
+input[type=range]{width:100%;margin:22px 0 8px;accent-color:var(--need);height:32px}
+.slider-ends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+
+/* interstitial */
+.inter{padding-top:34px}
+.inter .card{padding:28px 22px}
+.inter p{font-family:var(--serif);font-size:20px;line-height:1.5;margin-bottom:22px}
+
+/* processing */
+.proc{padding-top:64px}
+.steps{list-style:none;padding:0;margin:26px 0 0}
+.steps li{display:flex;gap:12px;align-items:center;padding:10px 0;color:#A8998B;transition:color .3s}
+.steps li .tick{width:22px;height:22px;border-radius:50%;border:2px solid #D3C9B8;display:grid;place-items:center;flex:0 0 22px}
+.steps li.done{color:var(--ink)}
+.steps li.done .tick{background:var(--need);border-color:var(--need)}
+.steps li.done .tick::after{content:"";width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+
+/* result */
+.res-kicker{font-size:14px;color:var(--muted);margin-bottom:4px}
+.res-level{margin:0 0 10px}
+.res-pct{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+.res-pct .num{font-family:var(--serif);font-size:64px;font-weight:600;line-height:1;color:var(--need)}
+.res-pct .cap{color:var(--muted);font-size:15px;line-height:1.35}
+.spots{list-style:none;padding:0;margin:8px 0 0}
+.spots li{padding:14px 0;border-top:1px solid var(--line)}
+.spots li b{display:block;font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:2px}
+.spots li span{color:var(--muted);font-size:15px}
+.want{background:var(--need-soft);border-radius:14px;padding:14px 16px;margin:18px 0;font-size:15px}
+.note{background:#F3ECDD;border-radius:14px;padding:14px 16px;font-size:14px;margin:18px 0;color:#4F3D38}
+.sect{margin:22px 0}
+.sect h3{margin-bottom:8px}
+.sect ul,.sect ol{margin:0;padding-left:20px}
+.sect li{margin:6px 0}
+.price{border-left:4px solid var(--life);padding:2px 0 2px 14px;margin:16px 0}
+.expert{display:flex;gap:14px;align-items:flex-start;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.ava{flex:0 0 64px;height:64px;border-radius:50%;background:var(--need);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:28px;overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover}
+.expert p{font-size:15px;margin:0}
+
+/* form */
+label{display:block;font-weight:600;font-size:15px;margin:16px 0 6px}
+input[type=text],textarea{width:100%;font:inherit;border:2px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--paper);color:var(--ink)}
+input[type=text]:focus,textarea:focus{border-color:var(--need);outline:none}
+textarea{min-height:84px;resize:vertical}
+.err{color:#A32A2A;font-size:14px;margin:10px 0 0}
+.opt-l{font-weight:500;color:var(--muted);font-size:13px}
+.ok-mark{width:56px;height:56px;border-radius:50%;background:var(--need);display:grid;place-items:center;margin-bottom:18px}
+.ok-mark::after{content:"";width:12px;height:22px;border:solid #fff;border-width:0 4px 4px 0;transform:rotate(45deg) translate(-2px,-2px)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main id="quiz" aria-live="polite"></main>
+
+<script>
+/* ============ НАЛАШТУВАННЯ ============ */
+const CONFIG = {
+  WEBHOOK_URL: "",   // сюди вставити адресу Google Apps Script (див. quiz-google-sheets.gs)
+  PHOTO_URL: "",     // посилання на фото Катерини (необов’язково)
+  RESPONSE_TIME: "протягом доби"
+};
+// Рівень рахується лише з 5 питань про сам стан (сили, відновлення, думки, тіло, тривалість). Максимум 15 балів.
+const LEVELS = [
+  { max: 4, name: "Ресурс є, але вже витрачається",
+    text: "Ви ще тримаєтесь, але сили йдуть швидше, ніж повертаються. Це добрий момент помітити, що саме їх забирає, поки не дійшло до межі.",
+    life: ["Ви справляєтесь і загалом відновлюєтесь, але помічаєте, що запас потроху тане.",
+           "Відпочинок ще працює, хоча не завжди повністю, а власні справи щоразу відкладаються «на потім».",
+           "Ви кажете собі: «Ось закінчу цей період і тоді видихну», а період усе не закінчується."],
+    step: "Цього тижня випишіть три речі, які найбільше забирають у вас сил, і одну, яка їх повертає. Просто подивіться, чого в цьому списку більше." },
+  { max: 8, name: "Режим «справляюсь»",
+    text: "Ви функціонуєте: робота, справи, близькі. А на життя поза «треба» сил майже не лишається. Це дуже поширений стан, і його добре можна розібрати.",
+    life: ["Ви робите все, що потрібно, а на себе сил майже не лишається.",
+           "Вихідні йдуть на побут, а коли з’являється вільна година, голова все одно працює.",
+           "Ввечері вмикається автопілот: телефон, їжа, серіали. Не тому, що весело, а тому, що більше немає сил на щось інше."],
+    step: "Цього тижня щодня на 10 хвилин виділяйте час, який нікому нічого не дає: без користі й без результату. Прогулянка без мети, чай без телефону. І просто помітьте, як це для вас." },
+  { max: 11, name: "Виснаження на межі",
+    text: "Втома вже помітна в роботі, стосунках чи тілі, а відпочинок не повертає сил. Такий режим сам не зупиняється, тут варто подивитись на причини, а не лише на симптоми.",
+    life: ["Втома вже не лише ввечері: вона в тілі, у сні, у терпінні до близьких, у робочих справах.",
+           "Відпочинок допомагає ненадовго, а буває, що не допомагає взагалі.",
+           "Ви дедалі частіше тримаєтесь на силі волі, а те, що раніше давалось легко, тепер вимагає зусиль."],
+    step: "Цього тижня оберіть одне «треба», яке можна зробити гірше, пізніше або не робити зовсім, і спробуйте. Подивіться, що станеться насправді: наслідки часто менші, ніж ми уявляємо." },
+  { max: 99, name: "Сили давно в мінусі",
+    text: "Ви довго тягнете більше, ніж можна витримати, і це відчувається майже в усьому. Це не вирок: з таким станом працюють, і починати можна з малого.",
+    life: ["Здається, що сили закінчились не сьогодні: ви давно живете в режимі, де на власне життя майже нічого не лишається.",
+           "Тіло й голова подають сигнали (сон, напруга, тривога), а відновлення майже не відчувається.",
+           "Навіть прості справи можуть здаватись важкими, а думка про відпочинок сама стає ще одним «треба»."],
+    step: "Цього тижня зробіть одну маленьку річ для себе, яка не потребує сил: склянка води, п’ять хвилин тиші, вимкнені сповіщення на годину. І, якщо можете, розкажіть одній людині, як вам насправді." }
+];
+
+/* ============ ПИТАННЯ ============ */
+// Спершу 5 питань про сам стан (з них рахується рівень), потім 1 проміжний екран,
+// потім питання про те, що підтримує цей стан (в рівень не входять, лише дають «зони уваги»).
+const Q = [
+ {id:"q2",short:"Сили на «треба» (%)",type:"slider",title:"Скільки ваших сил у звичайний тиждень іде на «треба»?",
+  hint:"Робота, діти, побут, обов’язки. Відповідайте на відчуття, не рахуйте точно."},
+ {id:"q4",short:"Відновлення",type:"multi",title:"Що з відновленням?",hint:"Можна обрати кілька",
+  opts:["Відновлююсь після вихідних","Вихідні йдуть на побут, а не на відпочинок","Відпустка допомагає на кілька днів, потім усе повертається","Відчуваю провину, коли відпочиваю, або відпочинок теж став «треба»","Відпочиваю, а легше не стає"],
+  w:[0,1,1,1,2]},
+ {id:"q5",short:"Думки",type:"single",title:"Що відбувається з думками, коли є час видихнути?",
+  opts:["Вимикаються","Прокручую розмови й «що, якщо»","Планую й передбачаю все наперед","Голова не вимикається навіть у тиші"]},
+ {id:"q8",short:"Тіло",type:"multi",title:"Що показує тіло?",hint:"Можна обрати кілька",
+  opts:["Напруга в спині чи шиї","Головний біль чи мігрені","Проблеми зі сном","Прокидаюсь уже з тривогою","Панічні атаки","Частіше хворію","Нічого з цього"],
+  w:[1,1,1,1,2,1,0],none:6,panic:4},
+ {id:"q13",short:"Тривалість",type:"single",title:"Як довго ви живете в такому режимі?",
+  opts:["Менше місяця","Кілька місяців","Понад рік","Так довго, що не пам’ятаю, як було інакше"]},
+ {int:"Півдороги позаду, і вже скажу: ви не одна. З таким станом до мене приходить дуже багато клієнток. І це нормально: неможливо бути продуктивною весь час. Далі кілька запитань про те, що може підтримувати цей стан."},
+ {id:"q6",short:"Коли щось пішло не так",type:"single",scored:false,title:"Що ви робите, коли щось пішло не так, як ви очікували?",
+  opts:["Спокійно приймаю й іду далі","Довго прокручую, що можна було інакше","Картаю себе, думаю «могла краще»","Беру на себе ще більше, щоб виправити"]},
+ {id:"q7",short:"Емоції",type:"single",scored:false,title:"Що ви робите зі злістю, образою, сумом чи тривогою?",
+  opts:["Проживаю й відпускаю","Відкладаю: «зараз не до цього»","Ковтаю, а потім прориває","Ховаюсь у справи чи телефон"]},
+ {id:"q9",short:"Допомога і відмова",type:"single",scored:false,title:"Що відбувається, коли потрібна допомога чи відмова?",
+  opts:["Легко прошу","Роблю сама, бо так швидше й надійніше","Складно попросити про допомогу: не хочу навантажувати інших","Складно відмовити, беру більше, ніж можу"]},
+ {id:"q12",short:"Втрачені можливості",type:"multi",scored:false,title:"Чи траплялось через брак сил таке?",hint:"Можна обрати кілька",
+  opts:["Відмовилась від проєкту чи нагоди","Погодилась на менші гроші чи гірші умови","Не попросила підвищення чи не підняла ціну","Змовчала на перемовинах, хоч було що сказати","Відкладала власні ідеї й навчання","Нічого з цього"],
+  w:[1,1,1,1,1,0],none:5},
+ {id:"q14",short:"Що пробували",type:"multi",scored:false,title:"Що ви вже пробували?",hint:"Можна обрати кілька",
+  opts:["Відпочинок і відпустку","Психолога чи терапію","Практики, курси, режими","Допомагало ненадовго","Розумію все, а поведінка не змінюється","Ще нічого"],
+  w:[0,0,1,1,1,0],none:5},
+ {id:"q15",short:"Що зміниться",type:"multi",max:3,title:"Що зміниться в житті, коли сил стане більше?",hint:"Оберіть до трьох",scored:false,
+  opts:["Прокидатимусь із силами","Буде енергія на себе, близьких, хобі","Менше прокручуватиму думки й критикуватиму себе","Відстоюватиму своє й отримуватиму більше за працю","Відчуватиму, що живу, а не виживаю"]}
+];
+const QS = Q.filter(x=>x.id);          // лише питання
+const TOTAL_Q = QS.length;             // 11
+const SCORED = QS.filter(q=>q.scored!==false);   // q2, q4, q5, q8, q13
+
+/* ============ ПІДРАХУНОК ============ */
+function qScore(q,v){
+  if(v===undefined) return null;
+  if(q.type==="slider") return v<30?0:v<60?1:v<85?2:3;
+  if(q.type==="single") return v;                       // 0..3
+  const w=q.w||[]; let s=0;
+  v.forEach(i=>{ s+= (w[i]??1); });
+  return Math.min(3,s);
+}
+const state={screen:"intro",idx:0,ans:{}};
+function totals(){
+  let sum=0,maxSoFar=0;
+  SCORED.forEach(q=>{const s=qScore(q,state.ans[q.id]); if(s!==null){sum+=s;maxSoFar+=3;}});
+  return {sum,maxSoFar};
+}
+function estPct(){
+  const {sum,maxSoFar}=totals();
+  if(!maxSoFar) return 50;
+  const p=30+(sum/maxSoFar)*65;
+  const sl=state.ans.q2;
+  const raw= sl!==undefined ? (sl+p)/2 : p;
+  return Math.max(15,Math.min(95,Math.round(raw/5)*5));
+}
+function level(){
+  const {sum}=totals();
+  return {sum, idx:LEVELS.findIndex(l=>sum<=l.max)};
+}
+
+/* ============ ЗОНИ УВАГИ ============ */
+const SPOTS=[
+ {k:"gap",q:"q14",t:"Ви вже багато розумієте, а зміни не тримаються",d:"Між «знаю, що треба» і «роблю інакше» зазвичай потрібен новий досвід, а не ще більше інформації."},
+ {k:"critic",q:"q6",t:"Внутрішній критик забирає багато сил",d:"Планка постійно рухається, а зроблене швидко знецінюється."},
+ {k:"help",q:"q9",t:"Допомога й «ні» даються важко",d:"Ви берете на себе більше, ніж реально можете витримати."},
+ {k:"emo",q:"q7",t:"Емоції накопичуються",d:"Їх відкладають чи ковтають, а це теж потребує ресурсу."},
+ {k:"lost",q:"q12",t:"Брак сил коштує вам можливостей",d:"Сили йдуть на те, щоб дотягнути, а не на розвиток і відстоювання свого."}
+];
+function topSpots(){
+  const sc=id=>qScore(QS.find(q=>q.id===id),state.ans[id])||0;
+  const list=SPOTS.map((s,i)=>({...s,i,s:Array.isArray(s.q)?Math.max(...s.q.map(sc)):sc(s.q)}));
+  list.sort((a,b)=>b.s-a.s||a.i-b.i);
+  let pick=list.filter(x=>x.s>=2).slice(0,3);
+  if(pick.length<2) pick=list.filter(x=>x.s>=1).slice(0,3);
+  return pick;
+}
+
+/* ============ ЕКРАНИ ============ */
+const app=document.getElementById("quiz");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FLOW=Q;
+function qPos(id){return QS.findIndex(q=>q.id===id)+1;}
+
+function topBar(showBack, label){
+  const p=estPct();
+  return `<div class="top">
+    <div class="bar-label"><span>На «треба» <b id="pN">${p}%</b></span><span>На життя <b id="pL">${100-p}%</b></span></div>
+    <div class="bar" role="img" aria-label="Орієнтовний розподіл сил"><i class="n" id="bN" style="width:${p}%"></i><i class="l" id="bL" style="width:${100-p}%"></i></div>
+    <div class="prog"><span>${label||""}</span><button class="back" data-a="back" ${showBack?"":"hidden"}>Назад</button></div>
+  </div>`;
+}
+function updateBar(){
+  const p=estPct();
+  const set=(id,v,t)=>{const e=document.getElementById(id); if(e){ if(t) e.textContent=v; else e.style.width=v; }};
+  set("pN",p+"%",1); set("pL",(100-p)+"%",1); set("bN",p+"%"); set("bL",(100-p)+"%");
+}
+
+function render(){
+  window.scrollTo({top:0});
+  const s=state.screen;
+  if(s==="intro") return app.innerHTML=introHTML();
+  if(s==="flow"){
+    const it=FLOW[state.idx];
+    if(it.int) return app.innerHTML=topBar(state.idx>0,"")+`<section class="screen inter"><div class="card"><p>${esc(it.int)}</p><button class="btn" data-a="next">Продовжити</button></div></section>`;
+    return app.innerHTML=topBar(state.idx>0,`Питання ${qPos(it.id)} з ${TOTAL_Q}`)+qHTML(it);
+  }
+  if(s==="proc") return procHTML();
+  if(s==="result") return app.innerHTML=resultHTML();
+  if(s==="offer") return app.innerHTML=offerHTML();
+  if(s==="form") return app.innerHTML=formHTML();
+  if(s==="thanks") return app.innerHTML=thanksHTML();
+}
+
+function introHTML(){
+  return `<section class="screen intro">
+   <h1>Скільки ваших сил іде на «треба», а скільки на ваше життя?</h1>
+   <p class="lead" style="margin-top:18px">Ви, мабуть, і так знаєте, що втомлені. Цей тест не про це. Він про те, куди саме йдуть ваші сили і що це вам коштує в роботі, стосунках, тілі й можливостях.</p>
+   <ul class="gets">
+    <li>Ваш рівень виснаження</li>
+    <li>Що саме тримає вас у режимі «треба»</li>
+    <li>Де ви втрачаєте найбільше</li>
+   </ul>
+   <button class="btn" data-a="start">Пройти тест, 2–3 хвилини</button>
+   <p class="fine" style="margin-top:14px">11 коротких питань. Правильних відповідей немає, відповідайте так, як є, а не так, як «мало б бути». Це не діагноз, а карта вашого стану.</p>
+  </section>`;
+}
+
+function qHTML(q){
+  const a=state.ans[q.id];
+  let body="";
+  if(q.type==="slider"){
+    const v=a===undefined?60:a;
+    body=`<div class="slider-box"><div class="slider-val"><span id="sv">${v}</span><small>%</small></div>
+      <input type="range" id="rng" min="0" max="100" step="5" value="${v}" aria-label="Відсоток сил, що йдуть на «треба»">
+      <div class="slider-ends"><span>майже нічого</span><span>майже все</span></div></div>
+      <button class="btn" data-a="slider">Далі</button>`;
+  } else {
+    const multi=q.type==="multi";
+    const sel=multi?(a||[]):(a===undefined?[]:[a]);
+    body=`<div class="opts ${multi?"multi":""}" role="${multi?"group":"radiogroup"}">`+
+      q.opts.map((o,i)=>`<button class="opt" role="${multi?"checkbox":"radio"}" aria-checked="${sel.includes(i)}" data-i="${i}"><span class="mark"></span><span>${esc(o)}</span></button>`).join("")+`</div>`;
+    if(multi) body+=`<button class="btn" data-a="multi" ${sel.length?"":"disabled"} id="nextMulti">Далі</button>`;
+  }
+  return `<section class="screen" data-q="${q.id}"><h2 class="q-title">${esc(q.title)}</h2>${q.hint?`<p class="q-hint">${esc(q.hint)}</p>`:""}${body}</section>`;
+}
+
+const PROC_STEPS=["Рахуємо, куди йдуть ваші сили","Шукаємо повторювані патерни","Збираємо вашу карту"];
+function procHTML(){
+  app.innerHTML=`<section class="screen proc"><h2>Опрацьовуємо ваші відповіді…</h2><ul class="steps">${PROC_STEPS.map(t=>`<li><span class="tick"></span>${t}</li>`).join("")}</ul></section>`;
+  const lis=[...app.querySelectorAll(".steps li")];
+  const gap=matchMedia("(prefers-reduced-motion:reduce)").matches?200:1100;
+  lis.forEach((li,i)=>setTimeout(()=>li.classList.add("done"),gap*(i+1)));
+  setTimeout(()=>{state.screen="result";render();},gap*(lis.length+1)+150);
+}
+
+function resultHTML(){
+  const {idx}=level(); const L=LEVELS[idx]; const p=estPct();
+  const spots=topSpots();
+  const want=(state.ans.q15||[]).map(i=>QS.find(q=>q.id==="q15").opts[i]);
+  const doctor=(state.ans.q8||[]).includes(QS.find(q=>q.id==="q8").panic)||idx===3;
+  return `<section class="screen" style="padding-top:26px">
+   <p class="res-kicker">За вашими відповідями</p>
+   <h2 class="res-level">${esc(L.name)}</h2>
+   <p>${esc(L.text)}</p>
+   <div class="res-pct"><span class="num">≈${p}%</span><span class="cap">ваших сил іде на «треба»,<br>на життя лишається ≈${100-p}%</span></div>
+   <div class="bar big"><i class="n" style="width:${p}%"></i><i class="l" style="width:${100-p}%"></i></div>
+   <p class="fine" style="margin-top:10px">Рівень і відсоток пораховані з ваших відповідей про сили, відновлення, думки, тіло й тривалість.</p>
+
+   <div class="sect" style="margin-top:30px"><h3>Що це означає у вашому житті</h3>
+    <ul>${L.life.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+
+   <div class="want"><b>Що спробувати цього тижня.</b> ${esc(L.step)}</div>
+
+   ${spots.length?`<h3 style="margin-top:30px">Що, ймовірно, підтримує цей стан</h3><p class="fine" style="margin:6px 0 0">Це не входить у ваш рівень, а пояснює, що може тримати вас у такому режимі.</p><ul class="spots">${spots.map(s=>`<li><b>${esc(s.t)}</b><span>${esc(s.d)}</span></li>`).join("")}</ul>`:""}
+   ${want.length?`<div class="want"><b>Ви обрали, що зміниться:</b> ${want.map(w=>esc(w.charAt(0).toLowerCase()+w.slice(1))).join("; ")}.</div>`:""}
+   ${doctor?`<div class="note">Якщо такий стан триває довго або трапляються панічні атаки, варто звернутися й до лікаря чи психотерапевта. Це не заважає роботі з психологом і часто доповнює її.</div>`:""}
+   <button class="btn amber" data-a="offer" style="margin-top:22px">Що далі</button>
+  </section>`;
+}
+
+function expertHTML(){
+  const ava=CONFIG.PHOTO_URL?`<img src="${esc(CONFIG.PHOTO_URL)}" alt="Катерина">`:"К";
+  return `<div class="expert"><div class="ava">${ava}</div><p><b>Катерина, психологиня та майстер гри Ліла.</b> Понад 8 років практики, освіта: бакалаврат і магістратура з психології. Працюю з жінками, які втомились жити в режимі «треба»: допомагаю розібратися, що підтримує виснаження, і повернути сили на власне життя.</p></div>`;
+}
+function offerHTML(){
+  return `<section class="screen" style="padding-top:26px">
+   <p style="font-family:var(--serif);font-size:20px;line-height:1.5">Тест допоміг побачити, що відбувається зараз. Але він не може показати, чому саме це повторюється у вашому житті. На безкоштовному розборі ми подивимось на ваш результат глибше й визначимо, з чого краще почати саме вам.</p>
+   <div class="price"><p style="margin:0">Повноцінна консультація коштує <b>1300 грн</b>. Але розбір відповідей цього тесту <b>безкоштовний: 30 хвилин зі мною.</b></p></div>
+   <div class="sect"><h3>З якими запитами можна прийти</h3><ul>
+     <li>Постійно без сил, а відпочинок не допомагає</li>
+     <li>Все розумію, але нічого не змінюється</li>
+     <li>Голова не вимикається, внутрішній критик не дає видихнути</li>
+     <li>Втрачаю можливості й гроші, бо немає сил відстоювати своє</li></ul></div>
+   <div class="sect"><h3>Що буде за 30 хвилин</h3><ol>
+     <li>Розберемо вашу карту й те, чого тест не бачить.</li>
+     <li>Знайдемо, що саме тримає ваше виснаження.</li>
+     <li>Складемо першу стратегію: як зібрати зміни в єдину систему саме під вас.</li>
+     <li>Ви підете з 1–2 кроками на тиждень і розумінням, який формат допомоги вам підходить.</li></ol></div>
+   <button class="btn amber" data-a="form">Хочу свій розбір</button>
+   ${expertHTML()}
+  </section>`;
+}
+function formHTML(){
+  return `<section class="screen" style="padding-top:26px"><h2>Куди написати, щоб узгодити час?</h2>
+   <p class="q-hint" style="margin-top:8px">Ваші відповіді з тесту вже будуть у Катерини, тож розбір почнеться з вашого запиту.</p>
+   <form id="f" novalidate>
+    <label for="nm">Ім’я</label><input type="text" id="nm" autocomplete="given-name" required>
+    <label for="ct">Телефон або Telegram</label><input type="text" id="ct" autocomplete="tel" required>
+    <label for="nt">Що зараз найважче <span class="opt-l">(за бажанням)</span></label><textarea id="nt"></textarea>
+    <p class="err" id="err" hidden></p>
+    <button class="btn amber" type="submit" id="sub" style="margin-top:20px">Записатися на розбір</button>
+    <p class="fine" style="margin-top:12px">Надсилаючи, ви погоджуєтесь, що Катерина використає ваші відповіді й контакт, щоб зв’язатися з вами.</p>
+   </form></section>`;
+}
+function thanksHTML(){
+  return `<section class="screen" style="padding-top:60px"><div class="ok-mark"></div><h2>Дякую, ви записані!</h2>
+   <p style="margin-top:12px">Катерина напише вам ${CONFIG.RESPONSE_TIME} і запропонує час. Ваші відповіді вже в неї, тож розбір почнеться з вашого запиту.</p></section>`;
+}
+
+/* ============ ЛОГІКА ============ */
+function go(n){
+  state.idx=n;
+  if(state.idx>=FLOW.length){ state.screen="proc"; return render(); }
+  state.screen="flow"; render();
+}
+function optionClick(q,i,btn){
+  if(q.type==="single"){
+    state.ans[q.id]=i;
+    btn.parentElement.querySelectorAll(".opt").forEach(b=>b.setAttribute("aria-checked",b===btn));
+    updateBar();
+    setTimeout(()=>go(state.idx+1),280);
+    return;
+  }
+  let cur=(state.ans[q.id]||[]).slice();
+  const has=cur.includes(i);
+  if(has) cur=cur.filter(x=>x!==i);
+  else{
+    if(q.none===i) cur=[i];
+    else{ cur=cur.filter(x=>x!==q.none); if(q.max&&cur.length>=q.max) return; cur.push(i); }
+  }
+  state.ans[q.id]=cur;
+  btn.parentElement.querySelectorAll(".opt").forEach(b=>b.setAttribute("aria-checked",cur.includes(+b.dataset.i)));
+  const nb=document.getElementById("nextMulti"); if(nb) nb.disabled=!cur.length;
+  updateBar();
+}
+app.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const a=b.dataset.a;
+  if(b.classList.contains("opt")){
+    const q=FLOW[state.idx]; return optionClick(q,+b.dataset.i,b);
+  }
+  if(a==="start") return go(0);
+  if(a==="next"||a==="multi") return go(state.idx+1);
+  if(a==="slider"){ const v=+document.getElementById("rng").value; state.ans.q2=v; return go(state.idx+1); }
+  if(a==="back") return go(Math.max(0,state.idx-1));
+  if(a==="offer"){state.screen="offer";return render();}
+  if(a==="form"){state.screen="form";return render();}
+});
+app.addEventListener("input",e=>{
+  if(e.target.id==="rng"){ document.getElementById("sv").textContent=e.target.value; state.ans.q2=+e.target.value; updateBar(); }
+});
+app.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const nm=document.getElementById("nm").value.trim(), ct=document.getElementById("ct").value.trim(), nt=document.getElementById("nt").value.trim();
+  const err=document.getElementById("err");
+  if(!nm||!ct){err.hidden=false;err.textContent="Вкажіть ім’я та телефон або Telegram, щоб Катерина могла вам написати.";return;}
+  err.hidden=true;
+  const sub=document.getElementById("sub"); sub.disabled=true; sub.textContent="Надсилаємо…";
+  const {sum,idx}=level(); const params=new URLSearchParams(location.search);
+  const answers={};
+  QS.forEach((q,n)=>{
+    const v=state.ans[q.id]; let t="";
+    if(v!==undefined) t=q.type==="slider"?v+"%":q.type==="single"?q.opts[v]:v.map(i=>q.opts[i]).join(" | ");
+    answers[(n+1)+". "+q.short]=t;
+  });
+  const payload={timestamp:new Date().toISOString(),name:nm,contact:ct,note:nt,level:LEVELS[idx].name,score:sum+"/15",pct_need:estPct(),
+    utm_source:params.get("utm_source")||"",utm_medium:params.get("utm_medium")||"",utm_campaign:params.get("utm_campaign")||"",answers};
+  try{
+    if(CONFIG.WEBHOOK_URL){
+      await fetch(CONFIG.WEBHOOK_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    } else { console.warn("WEBHOOK_URL не налаштовано. Дані заявки:",payload); }
+    state.screen="thanks"; render();
+  }catch(_){
+    sub.disabled=false; sub.textContent="Записатися на розбір";
+    err.hidden=false; err.textContent="Не вдалося надіслати. Спробуйте ще раз або напишіть Катерині напряму.";
+  }
+});
+render();
+</script>
+</body>
+</html>

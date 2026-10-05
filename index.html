@@ -106,6 +106,12 @@ input[type=range]{width:100%;margin:22px 0 8px;accent-color:var(--need);height:3
 .sect ul,.sect ol{margin:0;padding-left:20px}
 .sect li{margin:6px 0}
 .price{border-left:4px solid var(--life);padding:2px 0 2px 14px;margin:16px 0}
+.lead{font-family:var(--serif);font-size:19px;line-height:1.5;margin:10px 0 0}
+.trig,.gain{list-style:none;margin:8px 0 0;padding:0}
+.trig li{padding:4px 0 4px 14px;border-left:3px solid var(--life);margin:10px 0;color:var(--muted);font-size:16px}
+.gain li{position:relative;padding:7px 0 7px 32px;font-size:16px;line-height:1.4}
+.gain li::before{content:"✓";position:absolute;left:0;top:7px;width:22px;height:22px;border-radius:50%;background:var(--need);color:#fff;font-size:13px;display:grid;place-items:center}
+.sticky-cta{position:sticky;bottom:0;margin-top:14px;padding:18px 0 calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,rgba(226,219,206,0))}
 .expert{display:flex;gap:14px;align-items:flex-start;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
 .ava{flex:0 0 64px;height:64px;border-radius:50%;background:var(--need);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:28px;overflow:hidden}
 .ava img{width:100%;height:100%;object-fit:cover}
@@ -348,41 +354,43 @@ function resultHTML(){
 
 function expertHTML(){
   const ava=CONFIG.PHOTO_URL?`<img src="${esc(CONFIG.PHOTO_URL)}" alt="Катерина">`:"К";
-  return `<div class="expert"><div class="ava">${ava}</div><p><b>Катерина, психологиня та майстер гри Ліла.</b> Понад 8 років практики, освіта: бакалаврат і магістратура з психології. Працюю з жінками, які втомились жити в режимі «треба»: допомагаю розібратися, що підтримує виснаження, і повернути сили на власне життя.</p></div>`;
+  return `<div class="expert"><div class="ava">${ava}</div><p><b>Катерина, психологиня.</b> 8+ років практики. Працюю з жінками, які втомились жити в режимі «треба».</p></div>`;
 }
 function offerHTML(){
   return `<section class="screen" style="padding-top:26px">
-   <p style="font-family:var(--serif);font-size:20px;line-height:1.5">Тест допоміг побачити, що відбувається зараз. Але він не може показати, чому саме це повторюється у вашому житті. На безкоштовному розборі ми подивимось на ваш результат глибше й визначимо, з чого краще почати саме вам.</p>
-   <div class="price"><p style="margin:0">Повноцінна консультація коштує <b>1300 грн</b>. Але розбір відповідей цього тесту <b>безкоштовний: 30 хвилин зі мною.</b></p></div>
-   <div class="sect"><h3>З якими запитами можна прийти</h3><ul>
-     <li>Постійно без сил, а відпочинок не допомагає</li>
-     <li>Все розумію, але нічого не змінюється</li>
-     <li>Голова не вимикається, внутрішній критик не дає видихнути</li>
-     <li>Втрачаю можливості й гроші, бо немає сил відстоювати своє</li></ul></div>
-   <div class="sect"><h3>Що буде за 30 хвилин</h3><ol>
-     <li>Розберемо вашу карту й те, чого тест не бачить.</li>
-     <li>Знайдемо, що саме тримає ваше виснаження.</li>
-     <li>Складемо першу стратегію: як зібрати зміни в єдину систему саме під вас.</li>
-     <li>Ви підете з 1–2 кроками на тиждень і розумінням, який формат допомоги вам підходить.</li></ol></div>
-   <button class="btn amber" data-a="form">Хочу свій розбір</button>
+   <p class="res-kicker">Безкоштовний розбір · 30 хвилин</p>
+   <h2>Щоб сили йшли на ваше життя, а не лише на «треба»</h2>
+   <p class="lead">Тест показав, що відбувається зараз. Чому це повторюється саме у вас, він показати не може. На розборі подивимось на ваш результат глибше й визначимо, з чого почати.</p>
+   <div class="sect"><h3>Знайомо?</h3><ul class="trig">
+     <li>Вихідні є, а легше не стає</li>
+     <li>Голова не вимикається навіть у тиші</li>
+     <li>Усе розумієте, а нічого не змінюється</li></ul></div>
+   <div class="sect"><h3>За 30 хвилин ви:</h3><ul class="gain">
+     <li>Зрозумієте, що саме забирає ваші сили</li>
+     <li>Отримаєте 1–2 кроки, з яких почати цього тижня</li>
+     <li>Побачите, як повернути енергію на себе, а не лише на «треба»</li>
+     <li>Дізнаєтесь, яка підтримка вам справді потрібна</li></ul></div>
+   <p class="fine">Повна консультація коштує 1300 грн. Розбір безкоштовний.</p>
    ${expertHTML()}
+   <div class="sticky-cta"><button class="btn amber" data-a="form">Хочу свій розбір</button></div>
   </section>`;
 }
+
 function formHTML(){
   return `<section class="screen" style="padding-top:26px"><h2>Куди написати, щоб узгодити час?</h2>
-   <p class="q-hint" style="margin-top:8px">Ваші відповіді з тесту вже будуть у Катерини, тож розбір почнеться з вашого запиту.</p>
+   <p class="q-hint" style="margin-top:8px">Ваші відповіді вже в Катерини. Лишилось обрати час.</p>
    <form id="f" novalidate>
     <label for="nm">Ім’я</label><input type="text" id="nm" autocomplete="given-name" required>
     <label for="ct">Телефон або Telegram</label><input type="text" id="ct" autocomplete="tel" required>
     <label for="nt">Що зараз найважче <span class="opt-l">(за бажанням)</span></label><textarea id="nt"></textarea>
     <p class="err" id="err" hidden></p>
     <button class="btn amber" type="submit" id="sub" style="margin-top:20px">Записатися на розбір</button>
-    <p class="fine" style="margin-top:12px">Надсилаючи, ви погоджуєтесь, що Катерина використає ваші відповіді й контакт, щоб зв’язатися з вами.</p>
+    <p class="fine" style="margin-top:12px">Надсилаючи, ви погоджуєтесь на зв’язок щодо розбору.</p>
    </form></section>`;
 }
 function thanksHTML(){
   return `<section class="screen" style="padding-top:60px"><div class="ok-mark"></div><h2>Дякую, ви записані!</h2>
-   <p style="margin-top:12px">Катерина напише вам ${CONFIG.RESPONSE_TIME} і запропонує час. Ваші відповіді вже в неї, тож розбір почнеться з вашого запиту.</p></section>`;
+   <p style="margin-top:12px">Катерина напише вам ${CONFIG.RESPONSE_TIME} і запропонує час.</p></section>`;
 }
 
 /* ============ ЛОГІКА ============ */
